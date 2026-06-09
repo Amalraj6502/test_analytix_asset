@@ -116,6 +116,12 @@
             <field name="category_id" ref="assets_category"/>
         </record>
 
+        <!-- Edit Sequence Access: Allows editing the auto-generated Asset Sequence No -->
+        <record id="group_edit_sequence" model="res.groups">
+            <field name="name">Edit Sequence Access</field>
+            <field name="category_id" ref="assets_category"/>
+        </record>
+
         <!-- Asset Request Groups - separate category so they don't break the dropdown chain -->
         <record id="asset_request_category" model="ir.module.category">
             <field name="name">Asset Request</field>
@@ -195,7 +201,7 @@
         <record model="ir.rule" id="assets_user_rule">
             <field name="name">Assets Visibility for Users</field>
             <field name="model_id" ref="model_asset_management"/>
-            <field name="domain_force">['|', '|', '|', ('asset_admin_ids', 'in', [user.id]), ('asset_type_id.customer_id', '=', user.id), ('create_uid', '=', user.id), ('status', '=', 'assign')]</field>
+            <field name="domain_force">['|', '|', '|', ('asset_admin_id', '=', user.id), ('asset_type_id.customer_id', '=', user.id), ('create_uid', '=', user.id), ('status', '=', 'assign')]</field>
             <field name="groups" eval="[(4, ref('assets_user_group'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -207,7 +213,7 @@
         <record model="ir.rule" id="assets_admin_rule">
             <field name="name">Assets Visibility for Admins</field>
             <field name="model_id" ref="model_asset_management"/>
-            <field name="domain_force">['|', '|', '|', ('asset_admin_ids', 'in', [user.id]), ('asset_type_id.customer_id', '=', user.id), ('create_uid', '=', user.id), ('status', '=', 'assign')]</field>
+            <field name="domain_force">['|', '|', '|', ('asset_admin_id', '=', user.id), ('asset_type_id.customer_id', '=', user.id), ('create_uid', '=', user.id), ('status', '=', 'assign')]</field>
             <field name="groups" eval="[(4, ref('assets_admin_group'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -220,7 +226,7 @@
         <record model="ir.rule" id="assets_own_admin_rule_custom">
             <field name="name">Assets Visibility for Own Asset Admins (Custom)</field>
             <field name="model_id" ref="model_asset_management"/>
-            <field name="domain_force">['|', '|', '|', ('asset_admin_ids', 'in', [user.id]), ('asset_type_id.customer_id', '=', user.id), ('create_uid', '=', user.id), ('status', '=', 'assign')]</field>
+            <field name="domain_force">['|', '|', '|', ('asset_admin_id', '=', user.id), ('asset_type_id.customer_id', '=', user.id), ('create_uid', '=', user.id), ('status', '=', 'assign')]</field>
             <field name="groups" eval="[(4, ref('assets_own_admin_group'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -241,15 +247,12 @@
         </record>
 
         <!-- All internal users can READ assigned assets from ANY company
-             Also grants READ to assets where user is listed in asset_admin_ids.
-             IMPORTANT: this rule applies to base.group_user (every internal user).
-             Because Odoo ANDs rules from different groups, this must include the
-             asset_admin_ids condition so it doesn't block non-assigned assets
-             from appearing for members added to the admin list. -->
+             This is needed so repair_asset_id / return_asset_id dropdowns
+             in asset.request show cross-company assigned assets -->
         <record model="ir.rule" id="assets_assigned_read_all_companies_rule">
-            <field name="name">Assets: Read Assigned &amp; Admin-Listed Assets</field>
+            <field name="name">Assets: Read Assigned Assets Across All Companies</field>
             <field name="model_id" ref="model_asset_management"/>
-            <field name="domain_force">['|', ('status', '=', 'assign'), ('asset_admin_ids', 'in', [user.id])]</field>
+            <field name="domain_force">[('status', '=', 'assign')]</field>
             <field name="groups" eval="[(4, ref('base.group_user'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>

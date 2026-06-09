@@ -50,7 +50,12 @@
                     <div class="oe_title">
                         <h1>
                             <span class="fs-5">Asset Tag Number:</span>
-                            <field name="name" readonly="1"/>
+                            <!-- Editable ONLY for users with "Edit Sequence Access" group -->
+                            <field name="name" readonly="0"
+                                   groups="asset_management.group_edit_sequence"/>
+                            <!-- Read-only for all other users -->
+                            <field name="name" readonly="1"
+                                   groups="!asset_management.group_edit_sequence"/>
                         </h1>
                     </div>                    <!-- Main content organized in groups -->
                     <group>
@@ -62,7 +67,8 @@
                             <field name="asset_code_id" invisible="asset_type_test == 'service'"/>
                             <field name="asset_type_test" invisible="1"/>
                             <field name="asset_location"/>
-                            <field name="asset_admin_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                            <field name="asset_admin_id"/>
+                            <field name="asset_description"/>
                             <!--                            <field name="product_id"/>-->
                             <!--                            <field name="transfer_count"/>-->
                         </group>
@@ -227,6 +233,7 @@
                 
                 <field name="asset_code_id" optional="show"/>
                 <field name="asset_location" optional="show"/>
+                <field name="assigned_user" optional="show"/>
                 
                 <!-- Status as a stylish dynamic badge -->
                 <field name="status" widget="badge" 
@@ -550,7 +557,6 @@
                         <group>
                             <!-- Fields for defining asset type characteristics -->
                             <field name="code"/>
-                            <field name="category"/>
                             <field name="asset_type"/>
                             <field name="customer_id"/>
                             <field name="assign_type"/>
@@ -565,6 +571,12 @@
                         </group>
                     </group>
                 </sheet>
+                <!-- Chatter: shows field changes, messages, and activities -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
@@ -800,20 +812,6 @@
               name="Asset"
               web_icon="asset_management,static/description/asset_img.png"
               sequence="10"/>
-
-    <!-- Asset Dashboard client action -->
-    <record id="action_asset_dashboard" model="ir.actions.client">
-        <field name="name">Asset Dashboard</field>
-        <field name="tag">asset_management.asset_dashboard</field>
-    </record>
-
-    <!-- Dashboard Menu: First item in Asset root (sequence 5) -->
-    <menuitem id="menu_asset_dashboard"
-              name="Dashboard"
-              parent="menu_asset_root"
-              action="action_asset_dashboard"
-              groups="assets_user_group,assets_admin_group,assets_own_admin_group,assets_global_admin_group,base.group_system"
-              sequence="5"/>
 
     <!-- Assets Menu: Links to the main asset list -->
     <menuitem id="menu_asset"
