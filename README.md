@@ -1,0 +1,1 @@
+# test_analytix_asset
