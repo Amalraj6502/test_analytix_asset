@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+       <record id="location_details_tree" model="ir.ui.view">
+        <!-- Defines the tree (list) view for the asset.vendor model -->
+        <field name="name">asset.location.tree</field>
+        <field name="model">asset.management.location</field>
+        <field name="arch" type="xml">
+            <tree string="Location Details">
+                <field name="name"/>
+                <field name="location_code"/>
+                <field name="country_id"/>
+            </tree>
+        </field>
+    </record>
+
+
+        <record id="location_details_form" model="ir.ui.view">
+        <field name="name">location.details.form</field>
+        <field name="model">asset.management.location</field>
+        <field name="arch" type="xml">
+            <form string="Location Details">
+                <sheet>
+                    <group string="Location Details">
+                      <field name="name"/>
+                      <field name="country_id"/>
+                      <field name="location_code"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_location_details" model="ir.actions.act_window">
+        <field name="name">Location Details</field>
+        <field name="res_model">asset.management.location</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="location_details_tree"/>
+    </record>
+
+    <menuitem id="location_details_menu"
+              name="Location Details"
+              parent="asset_management.asset_configuration"
+              action="action_location_details"
+              sequence="20"/>
+
+
+
+
+
+</odoo>

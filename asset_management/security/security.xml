@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Module Categories -->
+
+
+        <!-- Maintenance Category -->
+        <record id="maintenance_category" model="ir.module.category">
+            <field name="name">Maintenance Management</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="group_maintenance_user" model="res.groups">
+        <field name="name">Maintenance User</field>
+        <field name="category_id" ref="maintenance_category"/>
+    </record>
+
+        <!-- User and admin groups for Maintenance -->
+        <record id="maintenance_user_group" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="maintenance_category"/>
+        </record>
+
+        <record id="maintenance_admin_group" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="category_id" ref="maintenance_category"/>
+            <field name="implied_ids" eval="[(4, ref('maintenance_user_group'))]"/>
+        </record>
+
+        <!-- Depreciation Category -->
+        <record id="depreciation_category" model="ir.module.category">
+            <field name="name">Depreciation Management</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- User and admin groups for Depreciation -->
+        <record id="depreciation_user_group" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="depreciation_category"/>
+        </record>
+
+        <record id="depreciation_admin_group" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="category_id" ref="depreciation_category"/>
+            <field name="implied_ids" eval="[(4, ref('depreciation_user_group'))]"/>
+        </record>
+
+        <!-- Reporting Category -->
+        <record id="reporting_category" model="ir.module.category">
+            <field name="name">Reporting Management</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Admin group for Reporting -->
+        <record id="reporting_admin_group" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="category_id" ref="reporting_category"/>
+        </record>
+
+        <!-- Transfer Category -->
+        <record id="transfer_category" model="ir.module.category">
+            <field name="name">Transfer Management</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <!-- User and admin groups for Transfer -->
+        <record id="transfer_user_group" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="transfer_category"/>
+        </record>
+
+        <record id="transfer_admin_group" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="category_id" ref="transfer_category"/>
+            <field name="implied_ids" eval="[(4, ref('transfer_user_group'))]"/>
+        </record>
+
+        <!-- Assets Category -->
+        <record id="assets_category" model="ir.module.category">
+            <field name="name">Assets Management</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Groups for Assets - SINGLE CHAIN so Odoo shows dropdown (only one selectable) -->
+        <!-- Level 1: Basic User -->
+        <record id="assets_user_group" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="assets_category"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Level 2: Own Asset Admin (sees only own category assets) -->
+        <record id="assets_own_admin_group" model="res.groups">
+            <field name="name">Own Asset Admin</field>
+            <field name="category_id" ref="assets_category"/>
+            <field name="implied_ids" eval="[(4, ref('assets_user_group'))]"/>
+        </record>
+
+        <!-- Keep old admin group ID pointing to same level as Own Asset Admin to avoid breaking references -->
+        <record id="assets_admin_group" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="category_id" ref="assets_category"/>
+            <field name="implied_ids" eval="[(4, ref('assets_own_admin_group'))]"/>
+        </record>
+
+        <!-- Level 3: Global Asset Admin (sees ALL assets) -->
+        <record id="assets_global_admin_group" model="res.groups">
+            <field name="name">Global Asset Admin</field>
+            <field name="category_id" ref="assets_category"/>
+            <field name="implied_ids" eval="[(4, ref('assets_admin_group'))]"/>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+        </record>
+
+        <record id="group_bypass_asset_pending_qty" model="res.groups">
+            <field name="name">Bypass Asset Pending Qty Validation</field>
+            <field name="category_id" ref="assets_category"/>
+        </record>
+
+        <!-- Asset Request Groups - separate category so they don't break the dropdown chain -->
+        <record id="asset_request_category" model="ir.module.category">
+            <field name="name">Asset Request</field>
+            <field name="sequence">51</field>
+        </record>
+
+        <record id="asset_request_admin_group" model="res.groups">
+            <field name="name">Asset Request Administrator</field>
+            <field name="category_id" ref="asset_request_category"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+        </record>
+
+        <record id="asset_request_admin_menu" model="res.groups">
+            <field name="name">Asset Request Menu Admin</field>
+            <field name="category_id" ref="asset_request_category"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- HR Department Group - separate category -->
+        <record id="hr_department_category" model="ir.module.category">
+            <field name="name">HR Department</field>
+            <field name="sequence">52</field>
+        </record>
+
+        <record id="hr_department_group" model="res.groups">
+            <field name="name">HR Department</field>
+            <field name="category_id" ref="hr_department_category"/>
+        </record>
+
+        <!-- Vendor Category -->
+        <record id="vendor_category" model="ir.module.category">
+            <field name="name">Vendor Management</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <!-- User and admin groups for Vendor -->
+        <record id="vendor_user_group" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="vendor_category"/>
+        </record>
+
+        <record id="vendor_admin_group" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="category_id" ref="vendor_category"/>
+            <field name="implied_ids" eval="[(4, ref('vendor_user_group'))]"/>
+        </record>
+
+        <!-- Record Rules -->
+        
+        <!-- Asset Transfer Rules -->
+        <record model="ir.rule" id="assets_transfer_user_rule">
+            <field name="name">Assets Transfer Visibility for Users</field>
+            <field name="model_id" ref="model_asset_transfer_entry"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('transfer_user_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record model="ir.rule" id="assets_transfer_admin_rule">
+            <field name="name">Assets Transfer Visibility for Administrators</field>
+            <field name="model_id" ref="model_asset_transfer_entry"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('transfer_admin_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Asset Management Rules -->
+        <!-- Old User group: also restricted to own category assets -->
+        <record model="ir.rule" id="assets_user_rule">
+            <field name="name">Assets Visibility for Users</field>
+            <field name="model_id" ref="model_asset_management"/>
+            <field name="domain_force">['|', '|', '|', ('asset_admin_ids', 'in', [user.id]), ('asset_type_id.customer_id', '=', user.id), ('create_uid', '=', user.id), ('status', '=', 'assign')]</field>
+            <field name="groups" eval="[(4, ref('assets_user_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Old Admin group: also restricted to own category assets (no longer sees everything) -->
+        <record model="ir.rule" id="assets_admin_rule">
+            <field name="name">Assets Visibility for Admins</field>
+            <field name="model_id" ref="model_asset_management"/>
+            <field name="domain_force">['|', '|', '|', ('asset_admin_ids', 'in', [user.id]), ('asset_type_id.customer_id', '=', user.id), ('create_uid', '=', user.id), ('status', '=', 'assign')]</field>
+            <field name="groups" eval="[(4, ref('assets_admin_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Rules for Custom Required Groups -->
+        <!-- Own Asset Admin: sees ONLY assets where their asset type admin is them -->
+        <record model="ir.rule" id="assets_own_admin_rule_custom">
+            <field name="name">Assets Visibility for Own Asset Admins (Custom)</field>
+            <field name="model_id" ref="model_asset_management"/>
+            <field name="domain_force">['|', '|', '|', ('asset_admin_ids', 'in', [user.id]), ('asset_type_id.customer_id', '=', user.id), ('create_uid', '=', user.id), ('status', '=', 'assign')]</field>
+            <field name="groups" eval="[(4, ref('assets_own_admin_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Global Asset Admin: sees ALL assets without any restriction -->
+        <record model="ir.rule" id="assets_global_admin_rule_custom">
+            <field name="name">Assets Visibility for Global Asset Admins (Custom)</field>
+            <field name="model_id" ref="model_asset_management"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('assets_global_admin_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- All internal users can READ assigned assets from ANY company
+             Also grants READ to assets where user is listed in asset_admin_ids.
+             IMPORTANT: this rule applies to base.group_user (every internal user).
+             Because Odoo ANDs rules from different groups, this must include the
+             asset_admin_ids condition so it doesn't block non-assigned assets
+             from appearing for members added to the admin list. -->
+        <record model="ir.rule" id="assets_assigned_read_all_companies_rule">
+            <field name="name">Assets: Read Assigned &amp; Admin-Listed Assets</field>
+            <field name="model_id" ref="model_asset_management"/>
+            <field name="domain_force">['|', ('status', '=', 'assign'), ('asset_admin_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Asset Maintenance Rules -->
+        <record model="ir.rule" id="assets_maintenance_user_rule">
+            <field name="name">Assets Maintenance Visibility for Users</field>
+            <field name="model_id" ref="model_asset_maintenance_entry"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('maintenance_user_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record model="ir.rule" id="assets_maintenance_admin_rule">
+            <field name="name">Assets Maintenance Visibility for Administrators</field>
+            <field name="model_id" ref="model_asset_maintenance_entry"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('maintenance_admin_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Asset Depreciation Rules -->
+        <record model="ir.rule" id="assets_depreciation_user_rule">
+            <field name="name">Assets Depreciation Visibility for Users</field>
+            <field name="model_id" ref="model_asset_depreciation_entry"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('depreciation_user_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record model="ir.rule" id="assets_depreciation_admin_rule">
+            <field name="name">Assets Depreciation Visibility for Administrators</field>
+            <field name="model_id" ref="model_asset_depreciation_entry"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('depreciation_admin_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Asset Types Rules -->
+        <!-- Only creator or assigned admin (customer_id) can see and manage their asset types -->
+        <record model="ir.rule" id="assets_types_user_rule">
+            <field name="name">Assets Types Visibility for Users</field>
+            <field name="model_id" ref="model_asset_type"/>
+            <field name="domain_force">['|', ('create_uid', '=', user.id), ('customer_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('assets_user_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record model="ir.rule" id="assets_types_own_admin_rule">
+            <field name="name">Assets Types Visibility for Own Asset Admins</field>
+            <field name="model_id" ref="model_asset_type"/>
+            <field name="domain_force">['|', ('create_uid', '=', user.id), ('customer_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('assets_own_admin_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record model="ir.rule" id="assets_types_admin_rule">
+            <field name="name">Assets Types Visibility for Administrators</field>
+            <field name="model_id" ref="model_asset_type"/>
+            <field name="domain_force">['|', ('create_uid', '=', user.id), ('customer_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('assets_admin_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record model="ir.rule" id="assets_types_global_admin_rule">
+            <field name="name">Assets Types Visibility for Global Administrators</field>
+            <field name="model_id" ref="model_asset_type"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('assets_global_admin_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Asset Vendor Rules -->
+        <record model="ir.rule" id="assets_vendor_user_rule">
+            <field name="name">Assets Vendor Visibility for Users</field>
+            <field name="model_id" ref="model_asset_vendor"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('assets_user_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record model="ir.rule" id="assets_vendor_admin_rule">
+            <field name="name">Assets Vendor Visibility for Administrators</field>
+            <field name="model_id" ref="model_asset_vendor"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('assets_admin_group'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Employee Allocation Service Rules -->
+        <record model="ir.rule" id="employee_allocation_service_user_rule">
+            <field name="name">Allocation Service: Own assigned</field>
+            <field name="model_id" ref="model_employee_allocation_service"/>
+            <field name="domain_force">[('assigned_by', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('assets_user_group'))]"/>
+        </record>
+
+        <record model="ir.rule" id="employee_allocation_service_admin_rule">
+            <field name="name">Allocation Service: Admin visibility</field>
+            <field name="model_id" ref="model_employee_allocation_service"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('assets_global_admin_group'))]"/>
+        </record>
+
+
+    </data>
+</odoo>
+

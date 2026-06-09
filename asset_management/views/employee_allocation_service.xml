@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_allocation_service_tree" model="ir.ui.view">
+    <field name="name">employee.allocation.service.tree</field>
+    <field name="model">employee.allocation.service</field>
+    <field name="arch" type="xml">
+        <tree>
+            <field name="assigned_to_id"/>
+            <field name="department_id"/>
+            <field name="allocation_date"/>
+            <field name="asset_Service_id"/>
+            <field name="service_status"/>
+            <field name="assigned_by"/>
+        </tree>
+    </field>
+</record>
+
+
+    <record id="view_employee_allocation_service_form" model="ir.ui.view">
+    <field name="name">employee.allocation.service.form</field>
+    <field name="model">employee.allocation.service</field>
+    <field name="arch" type="xml">
+        <form>
+            <header>
+                <button name="action_assign" string="Assign" type="object" invisible="service_status != 'draft'" class="oe_highlight"/>
+                <button name="action_return" string="Return" type="object" invisible="service_status != 'allocated'" class="oe_highlight"/>
+                <button name="action_hold" string="Hold" type="object" invisible="service_status != 'returned'" class="oe_highlight"/>
+                <button name="action_hold_to_return" string="To Return" type="object" invisible="service_status != 'in_hold'" class="oe_highlight"/>
+                <field name="service_status" widget="statusbar"/>
+            </header>
+            <sheet>
+                <group>
+                    <group string="Employee Allocation Service">
+                    <field name="assigned_to_id"/>
+                    <field name="department_id"/>
+                    <field name="allocation_date"/>
+                    <field name="asset_Service_id"/>
+                    <field name="asset_item_id" domain="[('asset_id', '=', asset_Service_id), ('status', '=', 'available')]" options="{'no_create': True, 'no_create_edit': True}"/>
+                    <field name="assigned_by"/>
+                    </group>
+                </group>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+
+    <record id="action_employee_allocation_service" model="ir.actions.act_window">
+        <field name="name">Employee Allocation Service</field>
+        <field name="res_model">employee.allocation.service</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <record id="view_asset_management_item_tree" model="ir.ui.view">
+        <field name="name">asset.management.item.tree</field>
+        <field name="model">asset.management.item</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="asset_id"/>
+                <field name="reference_number_id"/>
+                <field name="vendor_new_id"/>
+                <field name="invoice_date"/>
+                <field name="status"/>
+                <field name="buy_date"/>
+                <field name="end_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_asset_management_item_form" model="ir.ui.view">
+        <field name="name">asset.management.item.form</field>
+        <field name="model">asset.management.item</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="asset_id"/>
+                            <field name="reference_number_id"/>
+                            <field name="vendor_new_id"/>
+                        </group>
+                        <group>
+                            <field name="invoice_date"/>
+                            <field name="vendor_bill_id"/>
+                            <field name="purchase_price"/>
+                            <field name="invoice_attachment_ids" widget="many2many_binary"
+                                   options="{'filename':'name'}"/>
+                            <field name="status"/>
+                            <field name="buy_date"/>
+                            <field name="end_date"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

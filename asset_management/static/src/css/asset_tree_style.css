@@ -1,0 +1,93 @@
+.o_asset_type_tree {
+    background: #0c111d !important;
+    min-height: 100vh;
+    padding: 15px;
+}
+
+/* Separate the rows to look like modern stacked cards */
+.o_list_view.o_asset_type_tree table {
+    border-collapse: separate !important;
+    border-spacing: 0 15px !important;
+    background-color: transparent !important;
+}
+
+/* Header style matching dark mode */
+.o_asset_type_tree thead th {
+    background-color: transparent !important;
+    color: #94a3b8 !important;
+    text-transform: uppercase;
+    font-weight: 800;
+    border: none !important;
+    letter-spacing: 1px;
+}
+
+/* Row wrapper animations */
+.o_asset_type_tree tbody tr {
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1) !important;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2) !important;
+    border-radius: 16px !important;
+}
+
+/* The dark premium glassmorphism background for the cells */
+.o_asset_type_tree tbody tr > td {
+    background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%) !important;
+    color: #e2e8f0 !important;
+    border-top: 1px solid rgba(255,255,255,0.05) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    padding: 14px 15px !important;
+    vertical-align: middle;
+}
+
+/* Rounded corners for the left-most cell */
+.o_asset_type_tree tbody tr > td:first-child {
+    border-left: 1px solid rgba(255,255,255,0.05) !important;
+    border-top-left-radius: 16px !important;
+    border-bottom-left-radius: 16px !important;
+}
+
+/* Rounded corners for the right-most cell */
+.o_asset_type_tree tbody tr > td:last-child {
+    border-right: 1px solid rgba(255,255,255,0.05) !important;
+    border-top-right-radius: 16px !important;
+    border-bottom-right-radius: 16px !important;
+}
+
+/* HOVER ANIMATION: The Lift Effect */
+.o_asset_type_tree tbody tr:hover {
+    transform: translateY(-8px) scale(1.01) !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important;
+    z-index: 10;
+    position: relative;
+}
+
+/* Slightly brighten the row when hovered */
+.o_asset_type_tree tbody tr:hover > td {
+    background: linear-gradient(145deg, #1e293b 0%, #334155 100%) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+}
+
+/* Relational field links (Many2one like Asset Type) */
+.o_asset_type_tree tbody tr > td a,
+.o_asset_type_tree tbody tr > td a.o_form_uri {
+    color: #93c5fd !important; /* Bright, legible blue for clickable links */
+    text-decoration: none;
+    font-weight: bold;
+}
+.o_asset_type_tree tbody tr > td a:hover {
+    color: #bfdbfe !important; /* Lighter blue on hover */
+}
+
+/* Force regular text to be readable, but DO NOT override badges */
+.o_asset_type_tree tbody tr > td > span:not(.badge),
+.o_asset_type_tree tbody tr > td > div:not(.badge) {
+    color: #e2e8f0;
+}
+
+/* Ensure badges keep their vibrant colors in dark mode */
+.o_asset_type_tree tbody tr > td .badge {
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 5px 10px;
+}

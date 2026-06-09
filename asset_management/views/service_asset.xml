@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View for Service Asset -->
+    <record id="service_asset_tree_view" model="ir.ui.view">
+        <field name="name">asset.management.service.tree</field>
+        <field name="model">asset.management</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <tree string="Service Asset">
+                <field name="name"/>
+                <field name="asset_type_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Kanban View for Service Asset -->
+    <record id="view_service_asset_kanban" model="ir.ui.view">
+        <field name="name">asset.management.service.kanban</field>
+        <field name="model">asset.management</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="status" class="o_service_asset_kanban_dark">
+                <field name="name"/>
+                <field name="status"/>
+                <field name="invoice_date"/>
+                <field name="expired_warranty_date"/>
+                <field name="months_left"/>
+                <field name="depreciation_count"/>
+                <field name="maintenance_count"/>
+                <field name="transfer_count"/>
+                <field name="assigned_user"/>
+                <field name="warranty_status"/>
+                <field name="total_depreciation_amount"/>
+                <field name="total_maintenance_amount"/>
+                <field name="company_id"/>
+                <field name="validity_date"/>
+                <field name="end_date"/>
+                <field name="remaining_warranty"/>
+                <field name="quantity_on_hand"/>
+                <templates>
+                    <t t-name="kanban-menu" groups="base.group_user">
+                        <div class="container">
+                            <div class="row">
+                                <div class="o_kanban_card_manage_settings">
+                                    <div role="menuitem">
+                                        <a class="dropdown-item" role="menuitem" type="edit">Settings</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                    <t t-name="kanban-box">
+                        <style>
+                            .o_service_asset_kanban_dark {
+                                background: #0c111d !important;
+                                background-image: radial-gradient(ellipse at top, #1a2540 0%, #0c111d 70%) !important;
+                                min-height: 100vh;
+                            }
+                            .o_service_asset_kanban_dark .o_kanban_group_title {
+                                color: #94a3b8 !important;
+                                font-weight: 800 !important;
+                                text-transform: uppercase !important;
+                                letter-spacing: 1.5px !important;
+                            }
+                            .service_card_hover {
+                                transition: all 0.35s cubic-bezier(.25,.8,.25,1) !important;
+                                cursor: pointer !important;
+                            }
+                            .service_card_hover:hover {
+                                transform: translateY(-10px) !important;
+                                box-shadow: 0 25px 50px rgba(0,0,0,0.4) !important;
+                                z-index: 10;
+                            }
+                        </style>
+                        <div t-attf-class="oe_kanban_global_click oe_kanban_content oe_kanban_card border-0 shadow-lg mb-4 me-3 service_card_hover"
+                             style="border-radius: 18px; padding: 22px; background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); box-shadow: 0 8px 32px rgba(0,0,0,0.3); display: flex; flex-direction: column; min-height: 320px; width: 320px; border: 1px solid rgba(255,255,255,0.06) !important; color: #f1f5f9;">
+
+                            <!-- HEADER: Name, Status &amp; Qty -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="flex-grow-1">
+                                    <h4 class="fw-bolder mb-1 text-truncate" style="font-size: 1.1rem; max-width: 200px; color: #f1f5f9; letter-spacing: -0.5px;">
+                                        <field name="name"/>
+                                    </h4>
+                                    <div class="mt-1">
+                                        <span t-attf-class="badge rounded-pill #{status}
+                                                        #{record.status.raw_value == 'assign' ? 'o_tag_color_1' :
+                                                          record.status.raw_value == 'remote user' ? 'o_tag_color_3' :
+                                                          record.status.raw_value == 'return' ? 'o_tag_color_2' :
+                                                          record.status.raw_value == 'in_stock' ? 'o_tag_color_4' :
+                                                          record.status.raw_value == 'repair' ? 'o_tag_color_5 text-black' :
+                                                          record.status.raw_value == 'depreciated' ? 'o_tag_color_6 text-black' :
+                                                          record.status.raw_value == 'service_in_stock' ? 'bg-success text-white' :
+                                                          record.status.raw_value == 'expired' ? 'bg-danger text-white' :
+                                                          record.status.raw_value == 'scrap' ? 'bg-secondary text-white' :
+                                                          record.status.raw_value == 'no_stock' ? 'bg-danger text-white' :''}"
+                                              style="padding: 4px 10px; font-weight: 700; font-size: 0.65rem; text-transform: uppercase;">
+                                            <field name="status"/>
+                                        </span>
+                                    </div>
+                                </div>
+                                <!-- Available Qty Badge -->
+                                <div class="d-flex flex-column align-items-end">
+                                    <div style="font-size: 0.55rem; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Avail. Qty</div>
+                                    <div t-attf-class="fw-bold #{record.quantity_on_hand.raw_value == 0 ? 'text-danger' : 'text-success'}" style="font-size: 1.4rem; line-height: 1;">
+                                        <field name="quantity_on_hand"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- DATA CONTENT -->
+                            <div class="mt-2 mb-4 flex-grow-1">
+                                <div class="d-flex flex-column gap-2" style="font-size: 0.82rem;">
+                                    <div t-if="record.assigned_user.raw_value" class="d-flex align-items-center">
+                                        <i class="fa fa-user me-2" style="color: #818cf8; opacity: 0.7;" title="Assigned User" aria-label="Assigned User"/>
+                                        <span style="color: #64748b;" class="me-1">User:</span>
+                                        <span style="color: #e2e8f0;" class="fw-bold"><field name="assigned_user"/></span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="d-flex align-items-center gap-1" style="color: #64748b;">
+                                            <t t-if="record.total_depreciation_amount.raw_value">
+                                                <i class="fa fa-line-chart" title="Depreciation" aria-label="Depreciation"/>
+                                                <field name="total_depreciation_amount"/>
+                                            </t>
+                                        </span>
+                                        <span class="d-flex align-items-center gap-1" style="color: #64748b;">
+                                            <t t-if="record.total_maintenance_amount.raw_value">
+                                                <i class="fa fa-wrench" title="Maintenance" aria-label="Maintenance"/>
+                                                <field name="total_maintenance_amount"/>
+                                            </t>
+                                        </span>
+                                    </div>
+                                    <div class="d-flex flex-column gap-1" style="color: #64748b;">
+                                        <t t-if="record.invoice_date.raw_value">
+                                            <span><i class="fa fa-calendar me-1" title="Invoice Date"/>  <field name="invoice_date"/></span>
+                                        </t>
+                                        <t t-if="record.validity_date.raw_value">
+                                            <span><i class="fa fa-calendar text-success me-1" title="Validity Date"/> <field name="validity_date"/></span>
+                                        </t>
+                                        <t t-if="record.end_date.raw_value">
+                                            <span><i class="fa fa-exclamation-circle text-danger me-1" title="Expiry Date"/> <field name="end_date"/></span>
+                                        </t>
+                                        <t t-if="record.expired_warranty_date.raw_value">
+                                            <span><i class="fa fa-calendar text-danger me-1" title="Warranty Expiry"/> <field name="expired_warranty_date" class="text-danger"/></span>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FOOTER: Counter Badges -->
+                            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.06) !important;">
+                                <div class="d-flex gap-2">
+                                    <span class="badge d-flex align-items-center py-2 px-2" title="Depreciation Count"
+                                          style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #e2e8f0;">
+                                        <i class="fa fa-money me-1" style="color: #22c55e;"/> <field name="depreciation_count"/>
+                                    </span>
+                                    <span class="badge d-flex align-items-center py-2 px-2" title="Maintenance Count"
+                                          style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #e2e8f0;">
+                                        <i class="fa fa-wrench me-1" style="color: #f59e0b;"/> <field name="maintenance_count"/>
+                                    </span>
+                                    <span class="badge d-flex align-items-center py-2 px-2" title="Transfer Count"
+                                          style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #e2e8f0;">
+                                        <i class="fa fa-exchange me-1" style="color: #38bdf8;"/> <field name="transfer_count"/>
+                                    </span>
+                                </div>
+                                <span t-attf-class="badge text-uppercase border-#{record.warranty_status.raw_value} border text-#{record.warranty_status.raw_value}"
+                                      style="padding: 4px 8px; border-radius: 5px; background: rgba(255,255,255,0.05); color: #94a3b8; font-size: 0.6rem;">
+                                    <field name="remaining_warranty"/>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+
+
+    <!-- Form View for Service Asset -->
+    <record id="view_service_asset_form" model="ir.ui.view">
+        <field name="name">asset.management.service.form</field>
+        <field name="model">asset.management</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <form string="Asset Type">
+                 <header>
+                    <button name="%(asset_management.action_renew_service_wizard)d" string="Renew" type="action" class="oe_highlight"/>
+                    <button name="%(asset_management.action_update_quantity_wizard)d" string="Update Quantity" type="action" class="oe_highlight"/>
+                    <field name="status" widget="statusbar" statusbar_visible="service_in_stock,no_stock,expired" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-cubes" invisible="asset_type_test != 'service'">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="initial_quantity"/>
+                                </span>
+                                <span class="o_stat_text">Purchase Qty</span>
+                            </div>
+                        </button>
+                        <button name="action_view_items" type="object" class="oe_stat_button" icon="fa-list-ol" invisible="asset_type_test != 'service'">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="quantity_on_hand"/>
+                                </span>
+                                <span class="o_stat_text">Sub Assets</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1>
+                            <span class="fs-5">Asset Tag Number:</span>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Service Asset">
+                            <field name="asset_type_id" domain="[('asset_type', '=', 'service')]"/>
+                            <field name="subscription_type" invisible="asset_type_test != 'service'" required="asset_type_test == 'service'"/>
+                            <field name="asset_model" invisible="asset_type_test == 'service'"/>
+                            <field name="asset_type_test" invisible="1"/>
+                            <field name="asset_location"/>
+                            <field name="asset_admin_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                        </group>
+                        <group string="Other Information">
+                            <label for="quantity_on_hand" invisible="quantity_on_hand != 0" class="text-danger fw-bold"/>
+                            <label for="quantity_on_hand" invisible="quantity_on_hand == 0" class="text-success fw-bold"/>
+                            <field name="quantity_on_hand" nolabel="1" required="asset_type_test == 'service'" decoration-danger="quantity_on_hand == 0" decoration-success="quantity_on_hand &gt; 0"/>
+                            <field name="vendor_new_id"/>
+                            <field name="invoice_date"/>
+                            <field name="amount"/>
+                            <field name="vendor_bill_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="asset_date"/>
+                            <field name="validity_date"/>
+                            <field name="end_date"/>
+                            <field name="company_id"/>
+                            <field name="invoice_attachment_ids" widget="many2many_binary" options="{'filename':'name'}" />
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Window Action for Service Assets -->
+    <record id="action_service_asset" model="ir.actions.act_window">
+        <field name="name">Services</field>
+        <field name="res_model">asset.management</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">[('asset_type_test', '=', 'service'), ('status', 'in', ['service_in_stock', 'no_stock', 'expired'])]</field>
+        <field name="context">{'default_asset_type_test': 'service'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Asset
+            </p>
+        </field>
+    </record>
+
+    <!-- View links for Service Action -->
+    <record id="action_service_asset_kanban_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="view_service_asset_kanban"/>
+        <field name="act_window_id" ref="action_service_asset"/>
+    </record>
+
+    <record id="action_service_asset_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="service_asset_tree_view"/>
+        <field name="act_window_id" ref="action_service_asset"/>
+    </record>
+
+    <record id="action_service_asset_form_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="3"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_service_asset_form"/>
+        <field name="act_window_id" ref="action_service_asset"/>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_Service_asset_main"
+              name="Service"
+              parent="menu_asset_root"
+              groups="assets_user_group,assets_admin_group,assets_own_admin_group,assets_global_admin_group,base.group_system"
+              sequence="20"/>
+
+    <menuitem id="menu_Service_asset"
+              name="Stock"
+              parent="menu_Service_asset_main"
+              action="action_service_asset"
+              sequence="10"/>
+
+    <menuitem id="menu_employee_allocation_service"
+              name="Allocation"
+              parent="menu_Service_asset_main"
+              action="asset_management.action_employee_allocation_service"
+              sequence="20"/>
+
+    <!-- Window Action for Purchase Orders (under Service menu) -->
+    <record id="action_service_purchase_orders" model="ir.actions.act_window">
+        <field name="name">Purchase Orders</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No purchase orders found.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu: Purchase Orders under Service -->
+    <menuitem id="menu_service_purchase_orders"
+              name="Purchase Orders"
+              parent="menu_Service_asset_main"
+              action="action_service_purchase_orders"
+              sequence="30"/>
+
+</odoo>

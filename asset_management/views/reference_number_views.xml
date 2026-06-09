@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View for Batch Number (Reference Number) -->
+    <record id="view_reference_number_tree" model="ir.ui.view">
+        <field name="name">reference.number.tree</field>
+        <field name="model">reference.number</field>
+        <field name="arch" type="xml">
+            <tree string="Batch Numbers">
+                <field name="name"/>
+                <field name="buy_date"/>
+                <field name="end_date"/>
+                <field name="status" widget="badge" decoration-danger="status == 'expired'" decoration-success="status == 'not_expired'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Batch Number (Reference Number) -->
+    <record id="view_reference_number_form" model="ir.ui.view">
+        <field name="name">reference.number.form</field>
+        <field name="model">reference.number</field>
+        <field name="arch" type="xml">
+            <form string="Batch Number">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="buy_date"/>
+                        <field name="end_date"/>
+                        <field name="status" widget="radio" options="{'horizontal': true}"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for Batch Numbers -->
+    <record id="action_reference_number" model="ir.actions.act_window">
+        <field name="name">Batch Numbers</field>
+        <field name="res_model">reference.number</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define your batch numbers here.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item for Batch Numbers under Configuration -->
+<!--    <menuitem id="menu_reference_number"-->
+<!--              name="Batch Numbers"-->
+<!--              parent="asset_configuration"-->
+<!--              action="action_reference_number"-->
+<!--              sequence="20"/>-->
+</odoo>

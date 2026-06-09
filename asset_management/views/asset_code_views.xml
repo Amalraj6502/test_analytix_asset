@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_asset_code_tree" model="ir.ui.view">
+        <field name="name">asset.code.tree</field>
+        <field name="model">asset.code</field>
+        <field name="arch" type="xml">
+            <tree string="Asset Code">
+                <field name="name"/>
+                <field name="model_name"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_asset_code_form" model="ir.ui.view">
+        <field name="name">asset.code.form</field>
+        <field name="model">asset.code</field>
+        <field name="arch" type="xml">
+            <form string="Asset Code">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" required="1"/>
+                            <field name="model_name"/>
+                        </group>
+                        <group>
+                            <field name="description"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_asset_code" model="ir.actions.act_window">
+        <field name="name">Asset Code</field>
+        <field name="res_model">asset.code</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Create a new Asset Code
+          </p>
+        </field>
+    </record>
+
+    <!-- Menu Item under Configuration -->
+    <menuitem id="menu_asset_code"
+              name="Asset Code"
+              parent="asset_management.asset_configuration"
+              action="action_asset_code"
+              sequence="20"/>
+</odoo>

@@ -1,0 +1,23 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_asset_management,asset.management,model_asset_management,,1,1,1,1
+access_asset_transfer_entry_user,asset.transfer.entry.user,model_asset_transfer_entry,,1,1,1,1
+access_asset_maintenance_entry_user,asset.maintenance.entry.user,model_asset_maintenance_entry,,1,1,1,1
+access_asset_depreciation_entry_user,asset.depreciation.entry.user,model_asset_depreciation_entry,,1,1,1,1
+access_asset_vendor,asset.vendor,model_asset_vendor,,1,1,1,1
+access_asset_type_user,asset.type user,model_asset_type,,1,1,1,1
+access_asset_management_location,asset.management.location,model_asset_management_location,,1,1,1,1
+access_asset_warranty,asset.warranty,model_asset_warranty,,1,1,1,1
+access_asset_warranty_details,asset.warranty.details,model_asset_warranty_details,,1,1,1,1
+access_asset_purchase,asset.purchase,model_asset_purchase,,1,1,1,1
+access_upgrades_details_line,name_upgrades_details_line,model_upgrades_details_line,,1,1,1,1
+access_asset_request,asset.request,model_asset_request,base.group_user,1,1,1,1
+access_asset_request_admin,asset.request.admin,model_asset_request,asset_request_admin_group,1,1,1,1
+access_employee_allocation_service,employee.allocation.service,model_employee_allocation_service,base.group_user,1,1,1,1
+access_asset_management_item,asset.management.item,model_asset_management_item,base.group_user,1,1,1,1
+access_update_quantity_wizard,update.quantity.wizard,model_update_quantity_wizard,base.group_user,1,1,1,1
+access_renew_service_wizard,renew.service.wizard,model_renew_service_wizard,base.group_user,1,1,1,1
+access_reference_number,reference.number,model_reference_number,base.group_user,1,1,1,1
+asset_management.access_asset_create_rfq_wizard,access_asset_create_rfq_wizard,asset_management.model_asset_create_rfq_wizard,base.group_user,1,1,1,1
+asset_management.access_asset_maintenance_request,access_asset_maintenance_request,asset_management.model_asset_maintenance_request,base.group_user,1,1,1,1
+access_asset_register_qty_wizard,asset.register.qty.wizard,model_asset_register_qty_wizard,base.group_user,1,1,1,1
+access_asset_code,asset.code,model_asset_code,base.group_user,1,1,1,1

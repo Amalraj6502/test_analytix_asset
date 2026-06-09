@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_asset_request_search" model="ir.ui.view">
+        <field name="name">asset.management.search</field>
+        <field name="model">asset.management</field>
+        <field name="arch" type="xml">
+            <search>
+
+
+                <filter name="filter_service"
+                        string="Service Assets"
+                        domain="[('asset_type_test', '=', 'service')]"/>
+
+                <filter name="filter_storable"
+                        string="Storable Assets"
+                        domain="[('asset_type_test', '=', 'storable')]"/>
+
+                <filter name="filter_scrapped"
+                        string="Scrapped Assets"
+                        domain="[('status', '=', 'scrap')]"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="status" context="{'group_by': 'status'}"/>
+                </group>
+
+            </search>
+        </field>
+    </record>
+</odoo>
