@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="maintenance_request_inherit" model="ir.ui.view">
+        <field name="name">maintenance_request_view</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add after company name -->
+            <xpath expr="//field[@name='employee_id']" position="after">
+                <field name="maintenance_request_type" widget="radio"/>
+            </xpath>
+
+            <xpath expr="//field[@name='equipment_id']" position="attributes">
+                <attribute name="invisible">maintenance_request_type != 'equipment_request'</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='maintenance_type']" position="attributes">
+                <attribute name="invisible">maintenance_request_type != 'equipment_request'</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='duration']" position="attributes">
+                <attribute name="invisible">maintenance_request_type != 'equipment_request'</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='schedule_date']" position="attributes">
+                <attribute name="invisible">maintenance_request_type != 'equipment_request'</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

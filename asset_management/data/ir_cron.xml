@@ -1,0 +1,29 @@
+<odoo>
+    <data noupdate="1">
+        <!-- Cron to update Asset status (Service Assets) -->
+        <record id="ir_cron_update_asset_status" model="ir.cron">
+            <field name="name">Asset: Update Service Status Daily</field>
+            <field name="model_id" ref="model_asset_management"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_update_asset_status()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- Cron to update Asset Item status -->
+        <record id="ir_cron_update_item_status" model="ir.cron">
+            <field name="name">Asset Item: Update Status Daily</field>
+            <field name="model_id" ref="model_asset_management_item"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_update_item_status()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

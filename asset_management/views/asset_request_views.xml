@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_asset_request_tree" model="ir.ui.view">
+        <field name="name">asset.request.tree</field>
+        <field name="model">asset.request</field>
+        <field name="arch" type="xml">
+            <tree string="Facility Request">
+                <!--                <field name="name"/>-->
+                <field name="name" readonly="1"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="request_type"/>
+                <!--                <field name="asset_name"/>-->
+                <field name="asset_category_id"/>
+                <field name="requested_datetime"/>
+                <field name="priority" widget="badge"
+                       decoration-danger="priority == 'high'"
+                       decoration-success="priority == 'medium'"
+                       decoration-warning="priority == 'low'"/>
+                <field name="status" widget="badge"
+                       decoration-muted="status == 'draft'"
+                       decoration-info="status == 'submitted'"
+                       decoration-success="status == 'approved'"
+                       decoration-danger="status == 'rejected'"
+                       decoration-warning="status == 'received'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_asset_request_form" model="ir.ui.view">
+        <field name="name">asset.request.form</field>
+        <field name="model">asset.request</field>
+        <field name="arch" type="xml">
+            <form string="Facility Request">
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="oe_highlight"
+                            invisible="status != 'draft'"/>
+
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight"
+                            invisible="status != 'submitted' or not is_manager"/>
+                    <button name="action_reject" string="Reject" type="object"
+                            invisible="status != 'submitted' or not is_manager"/>
+                    <button name="action_approve_admin" string="Assign Asset" type="object" class="oe_highlight"
+                            invisible="status != 'approved' or not is_asset_request_admin or request_type in ['repair', 'return']"/>
+                    <button name="action_send_to_repair" string="Send to Repair" type="object" class="oe_highlight"
+                            invisible="request_type != 'repair' or not is_asset_request_admin or repair_status == 'sent'"/>
+                    <button name="action_collect_from_repair" string="Accept" type="object" class="oe_highlight"
+                            invisible="request_type != 'repair' or not is_asset_request_admin or repair_status != 'sent'"/>
+                    <button name="action_replace_asset" string="Replace" type="object" class="oe_highlight"
+                            invisible="request_type != 'replace' or not is_asset_request_admin or is_replaced"/>
+                    <button name="action_return_asset" string="Process Return" type="object" class="oe_highlight"
+                            invisible="status != 'approved' or request_type != 'return' or not is_asset_request_admin"/>
+                    <!--            <h1>-->
+                    <!--                <field name="name" readonly="1"/>-->
+                    <!--            </h1>-->
+
+
+                    <field name="status" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group string="Facility Form">
+                        <group>
+                            <field name="is_manager" invisible="1"/>
+                            <field name="is_asset_request_admin" invisible="1"/>
+                            <field name="is_department_head" invisible="1"/>
+                            <field name="is_hr_department" invisible="1"/>
+                            <field name="repair_status" invisible="1"/>
+                            <field name="is_replaced" invisible="1"/>
+                            <!--                        <field name="name"/>-->
+                            <!--                        <field name="request_method" widget="radio" options="{'horizontal': true}" invisible="not is_department_head"/>-->
+                            <field name="create_uid" invisible="1"/>
+
+                            <field name="request_method"
+                                   widget="radio"
+                                   options="{'horizontal': true}"
+                                   invisible="not (is_department_head and (create_uid == uid or not id))"/>
+
+                            <field name="employee_type"
+                                   invisible="request_method != 'for_someone'"/>
+                            <!--                        <field name="asset_name"/>-->
+                            <field name="is_self_request" invisible="1"/>
+                            <field name="request_type" widget="radio" options="{'horizontal': true}"
+                            />
+                            <!--                            <field name="request_type_normal" widget="radio" options="{'horizontal': true}"-->
+                            <!--                                   invisible="is_asset_request_admin or (is_department_head and is_self_request)"/>-->
+                            <field name="asset_category_id"
+                                   options="{'no_create': True, 'no_create_edit': True}"
+                                   context="{'asset_request_dropdown_bypass': True}"
+                                   domain="[] if is_department_head else [('assign_type', '=', 'individual')]"/>
+                            <field name="allocated_service_ids" invisible="1"/>
+                            <field name="allocated_service_id"
+       invisible="asset_type_test != 'service' or request_type not in ['repair', 'replace', 'return']"
+       domain="[('id', 'in', allocated_service_ids)]"
+       options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="repair_asset_id"
+       invisible="request_type in ['new', 'return'] or asset_type_test == 'service'"/>
+                            <field name="return_asset_id"
+                                   invisible="request_type != 'return' or asset_type_test == 'service'"/>
+                            <field name="requested_datetime"/>
+                            <field name="justification"/>
+                            <field name="priority" widget="radio" options="{'horizontal': true}"/>
+                            <field name="expected_date"/>
+
+                        </group>
+                        <group>
+
+                            <field name="asset_name_id" options="{'no_create': True, 'no_create_edit': True}"
+                                   invisible="request_type in ['repair', 'return'] or (not is_asset_request_admin and status != 'received') or asset_type_test == 'service'"
+                                   readonly="not is_asset_request_admin"/>
+                            <field name="asset_name_service_id"
+                                   invisible="request_type in ['repair', 'return'] or (not is_asset_request_admin and status != 'received') or asset_type_test != 'service'"
+                                   readonly="not is_asset_request_admin"/>
+
+                            <field name="asset_item_id"
+                                   invisible="request_type in ['repair', 'return'] or (not is_asset_request_admin and status != 'received') or asset_type_test != 'service'"
+                                   options="{'no_create': True, 'no_create_edit': True}"
+                                   readonly="not is_asset_request_admin"/>
+
+                            <label for="item_available_qty"
+                                   invisible="request_type in ['repair', 'return'] or (not is_asset_request_admin and status != 'received') or asset_type_test != 'service' or item_available_qty != 0"
+                                   class="text-danger fw-bold"/>
+
+                            <label for="item_available_qty"
+                                   invisible="request_type in ['repair', 'return'] or (not is_asset_request_admin and status != 'received') or asset_type_test != 'service' or item_available_qty == 0"
+                                   class="text-success fw-bold"/>
+
+                            <field name="item_available_qty"
+                                   nolabel="1"
+                                   invisible="request_type in ['repair', 'return'] or (not is_asset_request_admin and status != 'received') or asset_type_test != 'service'"
+                                   decoration-danger="item_available_qty == 0"
+                                   decoration-success="item_available_qty &gt; 0"/>
+<!--                            <label for="available_qty_service"-->
+<!--                                   invisible="request_type in ['repair', 'return'] or (not is_asset_request_admin and status != 'received') or asset_type_test != 'service' or available_qty_service != 0"-->
+<!--                                   class="text-danger fw-bold"/>-->
+
+<!--                            <label for="available_qty_service"-->
+<!--                                   invisible="request_type in ['repair', 'return'] or (not is_asset_request_admin and status != 'received') or asset_type_test != 'service' or available_qty_service == 0"-->
+<!--                                   class="text-success fw-bold"/>-->
+
+<!--                            <field name="available_qty_service"-->
+<!--                                   nolabel="1"-->
+<!--                                   invisible="request_type in ['repair', 'return'] or (not is_asset_request_admin and status != 'received') or asset_type_test != 'service'"-->
+<!--                                   decoration-danger="available_qty_service == 0"-->
+<!--                                   decoration-success="available_qty_service &gt; 0"/>-->
+                            <label for="available_qty"
+                                   class="text-danger fw-bold"
+                                   invisible="status != 'approved'
+                  or available_qty > 0
+                  or not is_asset_request_admin
+                  or asset_type_test == 'service'
+                  or request_type == 'repair'"/>
+
+                            <label for="available_qty"
+                                   class="text-success fw-bold"
+                                   invisible="status != 'approved'
+                  or available_qty == 0
+                  or not is_asset_request_admin
+                  or asset_type_test == 'service'
+                  or request_type == 'repair'"/>
+
+                            <div class="o_row"
+                                 invisible="status != 'approved'
+                or not is_asset_request_admin
+                or asset_type_test == 'service'
+                or request_type == 'repair'">
+
+                                <field name="available_qty"
+                                       nolabel="1"
+                                       widget="badge"
+                                       decoration-danger="available_qty == 0"
+                                       decoration-success="available_qty > 0"
+                                       invisible="request_type == 'repair'"
+                                />
+
+
+                            </div>
+                            <field name="asset_allocated_date"
+                                   invisible="request_type in ['repair', 'return'] or (not is_asset_request_admin and status != 'received')"
+                                   readonly="not is_asset_request_admin"/>
+                            <field name="upload_image"
+                                   widget="many2many_binary"
+                                   options="{'filename':'name'}"
+                                   invisible="request_type == 'repair'
+                  or (not is_asset_request_admin and status != 'received')
+                  or asset_type_test == 'service'"
+                                   readonly="not is_asset_request_admin"/>
+
+                            <field name="employee_id" options="{'no_create': True, 'no_create_edit': True}" readonly="1"
+                                   force_save="1"/>
+                            <field name="requested_for" invisible="employee_type != 'new_employee'"/>
+                            <field name="requested_employee_id"
+                                   options="{'no_create': True, 'no_create_edit': True}"
+                                   invisible="employee_type != 'exist_employee'"/>
+                            <field name="department_id" options="{'no_create': True, 'no_create_edit': True}"
+                                   readonly="not is_hr_department"
+                                   force_save="1"/>
+                            <field name="manager_id" readonly="1"/>
+                            <field name="asset_type_test" invisible="1"/>
+                            <!--                        <field name="asset_code" invisible="request_type not in ['repair','replace']"/>-->
+
+                        </group>
+                    </group>
+                    <!--                    <notebook>-->
+                    <!--                    <page string="Maintainance / Repairs" invisible="not is_asset_request_admin or request_type != 'repair'">-->
+                    <!--                        <field name="maintaice_line">-->
+                    <!--                            <tree editable="bottom">-->
+                    <!--                                <field name="asset_id"/>-->
+                    <!--                                <field name="maintenance_vendor_id"/>-->
+                    <!--                                <field name="maintenance_amount"/>-->
+                    <!--                                <field name="assign_date"/>-->
+                    <!--                                <field name="assign_by"/>-->
+                    <!--                                <field name="return_date"/>-->
+                    <!--                                <field name="maintenance_status"/>-->
+                    <!--                            </tree>-->
+                    <!--                        </field>-->
+                    <!--                    </page>-->
+                    <!--                </notebook>-->
+                </sheet>
+
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Default Search View (For Facility Request) -->
+    <record id="view_asset_request_search_basic" model="ir.ui.view">
+        <field name="name">asset.request.search.basic</field>
+        <field name="model">asset.request</field>
+        <field name="arch" type="xml">
+            <search string="Facility Request Search">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="asset_category_id"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Specific Search View (For Approved/Received Requests) -->
+    <record id="view_asset_request_search_approved" model="ir.ui.view">
+        <field name="name">asset.request.search.approved</field>
+        <field name="model">asset.request</field>
+        <field name="arch" type="xml">
+            <search string="Approved Request Search">
+                <filter string="My Request" name="my_request" domain="[('asset_category_id.customer_id', '=', uid)]"/>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="asset_category_id"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_asset_request" model="ir.actions.act_window">
+        <field name="name">Asset Request</field>
+        <field name="res_model">asset.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_asset_request_search_basic"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Asset Request
+            </p>
+        </field>
+    </record>
+
+
+    <record id="action_asset_request_approved_received" model="ir.actions.act_window">
+        <field name="name">Approved / Received Asset Requests</field>
+        <field name="res_model">asset.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('status', 'in', ('approved', 'received'))]</field>
+        <field name="search_view_id" ref="view_asset_request_search_approved"/>
+        <field name="context">{'search_default_my_request': 1}</field>
+
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Approved and Received Asset Requests
+            </p>
+        </field>
+    </record>
+
+
+    <!-- Menu Item -->
+    <menuitem id="menu_asset_request"
+              name="Facility Request"
+              parent="hr.menu_hr_root"
+              action="action_asset_request"
+              sequence="20"/>
+
+    <menuitem id="menu_asset_request_approved"
+              name="Assets Requests"
+              parent="asset_management.menu_asset_root"
+              action="action_asset_request_approved_received"
+              groups="asset_management.asset_request_admin_group"
+              sequence="20"/>
+</odoo>

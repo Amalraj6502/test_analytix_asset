@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Custom Tree View for Purchase Order Lines (Pending Assets) -->
+    <record id="view_purchase_order_line_asset_tree" model="ir.ui.view">
+        <field name="name">purchase.order.line.asset.tree</field>
+        <field name="model">purchase.order.line</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <tree string="Pending Asset Registration" create="false" edit="false" decoration-success="pending_asset_qty &gt; 0">
+                <field name="order_id" string="PO Reference"/>
+                <field name="partner_id" string="Vendor"/>
+                <field name="product_id"/>
+                <field name="qty_received" string="Received Qty"/>
+                <field name="asset_registered_qty" string="Already Registered"/>
+                <field name="pending_asset_qty" string="Remaining to Register"/>
+                <field name="total_pending_quantity" string="Total Pending (All Orders)"/>
+                <button name="action_register_as_asset"
+                        string="Register as Asset"
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-plus-circle"
+                        invisible="pending_asset_qty &lt;= 0"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_asset_inherit" model="ir.ui.view">
+        <field name="name">account.asset.in herit</field>
+        <field name="model">account.asset.asset</field>
+        <field name="inherit_id" ref="om_account_asset.view_account_asset_asset_form"/>
+        <field name="arch" type="xml">
+            <!-- Add after company name -->
+            <xpath expr="//field[@name='name']" position="after">
+                <group>
+                                    <field name="asset_management_id" string="Asset Name"/>
+
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

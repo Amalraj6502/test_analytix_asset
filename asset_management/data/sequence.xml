@@ -1,0 +1,36 @@
+<odoo>
+    <!-- Sequence for Asset Code Generation -->
+    <record id="seq_asset_code" model="ir.sequence">
+        <field name="name">Asset Code</field>
+        <field name="code">asset.management</field>
+        <field name="prefix"></field>
+        <field name="padding">3</field>
+        <field name="number_next">1</field>
+    </record>
+
+    <!-- Sequence for Asset Request (base template — per-company sequences auto-created in code) -->
+    <record id="seq_asset_request" model="ir.sequence">
+        <field name="name">Asset Request Sequence</field>
+        <field name="code">asset.request</field>
+        <field name="prefix"></field>
+        <field name="padding">3</field>
+        <field name="number_next">1</field>
+        <!-- company_id is intentionally NOT set here; per-company sequences are
+             auto-created dynamically by AssetRequest._get_or_create_company_sequence() -->
+    </record>
+
+
+
+    <!-- Scheduled Action for Generating Depreciation Entries -->
+    <record id="ir_cron_generate_depreciation_entries" model="ir.cron">
+        <field name="name">Generate Asset Depreciation Entries</field>
+        <field name="model_id" ref="model_asset_management"/>
+        <field name="state">code</field>
+        <field name="code">model.generate_depreciation_entries()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>
