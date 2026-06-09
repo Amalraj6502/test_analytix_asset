@@ -50,9 +50,6 @@
     'assets': {
         'web.assets_backend': [
             'asset_management/static/src/css/asset_tree_style.css',
-            'asset_management/static/src/css/asset_dashboard.css',
-            'asset_management/static/src/xml/asset_dashboard.xml',
-            'asset_management/static/src/js/asset_dashboard.js',
         ],
     },
 }

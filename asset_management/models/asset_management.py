@@ -52,6 +52,7 @@ class Asset(models.Model):
     initial_quantity = fields.Integer(string="Initial Quantity", help="The first time entered quantity")
 
     asset_code_id = fields.Many2one('asset.code', string="Asset Model", )
+    asset_description = fields.Text(string="Asset Description")
 
 
 
@@ -59,13 +60,10 @@ class Asset(models.Model):
     # for upgrades lines
     order_line_ids = fields.One2many('upgrades.details.line', 'line_id', string="Order Lines")
 
-    # for asset admin (Many2many so multiple users can be added)
-    asset_admin_ids = fields.Many2many(
+    # for asset admin
+    asset_admin_id = fields.Many2one(
         'res.users',
-        'asset_management_admin_rel',
-        'asset_id',
-        'user_id',
-        string="Asset Admins",
+        string="Asset Admin", required=True, tracking=True
     )
     subscription_type = fields.Selection([('basic', 'Basic'),('standard', 'Standard'),('premium', 'Premium')],)
 
@@ -74,8 +72,8 @@ class Asset(models.Model):
     upload_image_asset = fields.Image(string="Upload Image Asset")
 
     # Basic Asset Information
-    name = fields.Char(string="Asset Sequence No", required=True, copy=False, readonly=True,
-                       default=lambda self: _('New'))
+    name = fields.Char(string="Asset Sequence No", required=True, copy=False,
+                       default=lambda self: _('New'), tracking=True)  # readonly enforced via write() + view groups
 
     vendor_new_id = fields.Many2one(
         'res.partner',
@@ -111,6 +109,7 @@ class Asset(models.Model):
     product_id = fields.Many2one('product.product', string="Associated Product",
                                  help="Select the product used in this asset from available options")
     asset_type_id = fields.Many2one('asset.type', string="Asset Type", required=True,
+                                    tracking=True,
                                     help="Classification of the asset (e.g., Equipment, Vehicle, Building)")
 
     # Depreciation Settings
@@ -127,10 +126,10 @@ class Asset(models.Model):
 
     vendor_id = fields.Many2one('asset.vendor', string="Associated Vendor ",
                                 help="Select the vendor or supplier of this asset")
-    invoice_date = fields.Date(string="Invoice Date", help="Date when the asset was purchased or acquired")
-    amount = fields.Float(string="Purchase Price", required=True, help="Initial cost of acquiring the asset")
-    asset_location = fields.Many2one('asset.management.location', string="Asset Location", required=True)
-    warranty_id = fields.Many2one('asset.warranty', string="Vendor Warranty")
+    invoice_date = fields.Date(string="Invoice Date", tracking=True, help="Date when the asset was purchased or acquired")
+    amount = fields.Float(string="Purchase Price", required=True, tracking=True, help="Initial cost of acquiring the asset")
+    asset_location = fields.Many2one('asset.management.location', string="Asset Location", required=True, tracking=True)
+    warranty_id = fields.Many2one('asset.warranty', string="Vendor Warranty", tracking=True)
     asset_purchase_id = fields.Many2one('asset.purchase',string="Asset Purchase From")
 
 
@@ -144,7 +143,7 @@ class Asset(models.Model):
 
                                             compute='_compute_total_maintenance_amount', store=True,
                                             help="Sum of all maintenance expenses for this asset (Read-only)")
-    # Asset Status 
+    # Asset Status
     status = fields.Selection([
         ('assign', 'Assign'),
         ('remote_user', 'Remote User'),
@@ -156,12 +155,12 @@ class Asset(models.Model):
         ('no_stock', 'No Stock'),
         ('expired', 'Expired'),
         ('scrap', 'Scrapped')
-    ], compute="_compute_status", store=True, string="Status", default='in_stock')
-    scrap_date = fields.Date(string="Scrap Date")
+    ], compute="_compute_status", store=True, string="Status", default='in_stock', tracking=True)
+    scrap_date = fields.Date(string="Scrap Date", tracking=True)
     scrap_state = fields.Selection([
         ('fully_scrapped', 'Fully Scrapped'),
         ('semi_scrapped', 'Semi Scrapped')
-    ], string="Scrap State")
+    ], string="Scrap State", tracking=True)
     scrap_value = fields.Integer(string="Scrap Value")
 
     # Related Documents and Entries
@@ -209,8 +208,7 @@ class Asset(models.Model):
     def _onchange_asset_type_id(self):
         for rec in self:
             if rec.asset_type_id and rec.asset_type_id.customer_id:
-                # Append the type's admin to the many2many list (don't overwrite existing ones)
-                rec.asset_admin_ids = [(4, rec.asset_type_id.customer_id.id)]
+                rec.asset_admin_id = rec.asset_type_id.customer_id
 
     # for service product quantity
     @api.depends('quantity_on_hand', 'end_date', 'asset_type_test', 'asset_item_ids.status')
@@ -562,6 +560,16 @@ class Asset(models.Model):
         return record
 
     def write(self, vals):
+        # ── Sequence protection ──────────────────────────────────────────────
+        # Only users with "Edit Sequence Access" may change the Asset Sequence No.
+        if 'name' in vals and not self.env.user.has_group(
+                'asset_management.group_edit_sequence'):
+            raise UserError(_(
+                "You do not have permission to edit the Asset Sequence Number. "
+                "Please ask an administrator to grant you the "
+                "'Edit Sequence Access' right."
+            ))
+        # ────────────────────────────────────────────────────────────────────
         if 'asset_type_id' in vals:
             for rec in self:
                 # Unregister from the old line before switching
@@ -868,36 +876,20 @@ class AssetDepreciationEntry(models.Model):
 class AssetType(models.Model):
     _name = 'asset.type'
     _description = 'Asset Type'
+    _inherit = ['mail.thread', 'mail.activity.mixin']  # enables chatter & field tracking
 
     active = fields.Boolean(default=True, string="Active")
 
-
-
-
-
-
     # code for prefix
-    code = fields.Char(string="Code", required=True)
+    code = fields.Char(string="Code", required=True, tracking=True)
 
     # Fields for defining asset types and their depreciation rules
-    name = fields.Char(string='Name', required=True)
-    stage = fields.Selection([('draft', 'Draft'), ('inventory', 'Inventory')], string="Stage", default='draft')
-    customer_id = fields.Many2one('res.users', string="Admin", default=lambda self: self.env.user)
-    asset_type = fields.Selection([('storable', 'Storable'), ('service', 'Service')], string="Product Type", default='storable', required=True)
+    name = fields.Char(string='Name', required=True, tracking=True)
+    stage = fields.Selection([('draft', 'Draft'), ('inventory', 'Inventory')], string="Stage", default='draft', tracking=True)
+    customer_id = fields.Many2one('res.users', string="Admin", default=lambda self: self.env.user, tracking=True)
+    asset_type = fields.Selection([('storable', 'Storable'), ('service', 'Service')], string="Product Type", default='storable', required=True, tracking=True)
     image = fields.Image(string="Image")
-    assign_type = fields.Selection([('individual', 'Individual'), ('department', 'Department')], string="Assign Type", default='individual')
-
-    # Dashboard category grouping
-    category = fields.Selection([
-        ('it_equipment',    'IT Equipment'),
-        ('network_servers',  'Network & Servers'),
-        ('security_cctv',   'Security & CCTV'),
-        ('av_display',      'AV & Display'),
-        ('telecom',         'Telecom'),
-        ('peripherals',     'Peripherals'),
-        ('facilities',      'Facilities'),
-        ('tools',           'Tools'),
-    ], string="Category", default='it_equipment')
+    assign_type = fields.Selection([('individual', 'Individual'), ('department', 'Department')], string="Assign Type", default='individual', tracking=True)
 
     def action_create_product(self):
         for rec in self:
@@ -1048,86 +1040,6 @@ class AssetType(models.Model):
             'view_mode': 'tree',
             'domain': [('id', 'in', po_ids)],
             'context': {'create': False},
-        }
-
-    @api.model
-    def get_asset_dashboard_data(self, category=False):
-        """
-        Returns aggregated data for the Asset Dashboard OWL component.
-        :param category: str or False — filter by asset.type.category value
-        """
-        AssetType = self.env['asset.type']
-        AssetMgt  = self.env['asset.management']
-        Transfer  = self.env['asset.transfer.entry']
-
-        # --- Base domain with optional category filter ---
-        type_domain = []
-        if category:
-            type_domain = [('category', '=', category)]
-        asset_type_ids = AssetType.search(type_domain)
-
-        # ── Stat card counts ──────────────────────────────────────────────
-        total_asset_types = len(asset_type_ids)
-        storable_count    = len(asset_type_ids.filtered(lambda t: t.asset_type == 'storable'))
-        service_count     = len(asset_type_ids.filtered(lambda t: t.asset_type == 'service'))
-
-        asset_domain = [('asset_type_id', 'in', asset_type_ids.ids)] if asset_type_ids else [('id', '=', False)]
-        all_assets   = AssetMgt.search(asset_domain)
-
-        total_assets = len(all_assets)
-        in_stock     = len(all_assets.filtered(lambda a: a.status == 'in_stock'))
-        assigned     = len(all_assets.filtered(lambda a: a.status == 'assign'))
-        in_repair    = len(all_assets.filtered(lambda a: a.status == 'repair'))
-
-        # Transfers: all transfer entries for matching assets
-        transfers = Transfer.search_count(
-            [('asset_id', 'in', all_assets.ids)] if all_assets else [('id', '=', False)]
-        )
-
-        # ── By category (for polar-area chart) ───────────────────────────
-        CATEGORY_KEYS = [
-            'it_equipment', 'network_servers', 'security_cctv', 'av_display',
-            'telecom', 'peripherals', 'facilities', 'tools',
-        ]
-        all_types_for_chart = AssetType.search([])
-        by_category = []
-        for cat_key in CATEGORY_KEYS:
-            count = len(all_types_for_chart.filtered(lambda t, k=cat_key: t.category == k))
-            if count:
-                by_category.append({'category': cat_key, 'count': count})
-
-        # ── Status distribution (for doughnut chart) ─────────────────────
-        status_map = {}
-        for asset in all_assets:
-            status_map[asset.status] = status_map.get(asset.status, 0) + 1
-        status_distribution = [
-            {'status': k, 'count': v}
-            for k, v in sorted(status_map.items(), key=lambda x: -x[1])
-        ]
-
-        # ── Types per category (for horizontal bar chart) ─────────────────
-        types_per_category = []
-        for cat_key in CATEGORY_KEYS:
-            count = len(asset_type_ids.filtered(lambda t, k=cat_key: t.category == k))
-            if count:
-                types_per_category.append({'category': cat_key, 'count': count})
-
-        # ── Company name ─────────────────────────────────────────────────
-        company_name = self.env.company.name
-
-        return {
-            'total_asset_types':   total_asset_types,
-            'storable_count':      storable_count,
-            'service_count':       service_count,
-            'total_assets':        total_assets,
-            'in_stock':            in_stock,
-            'assigned':            assigned,
-            'in_repair':           in_repair,
-            'transfers':           transfers,
-            'by_category':         by_category,
-            'status_distribution': status_distribution,
-            'types_per_category':  types_per_category,
-            'company_name':        company_name,
         }
 
     def action_view_pending_asset_entry(self):
