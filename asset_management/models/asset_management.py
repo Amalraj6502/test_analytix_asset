@@ -54,16 +54,25 @@ class Asset(models.Model):
     asset_code_id = fields.Many2one('asset.code', string="Asset Model", )
     asset_description = fields.Text(string="Asset Description")
 
+    model_name = fields.Char(
+        related='asset_code_id.model_name',
+        string='Model Name',
+        store=True
+    )
+
 
 
 
     # for upgrades lines
     order_line_ids = fields.One2many('upgrades.details.line', 'line_id', string="Order Lines")
 
-    # for asset admin
-    asset_admin_id = fields.Many2one(
+    # for asset admin (Many2many – multiple admins per asset)
+    asset_admin_ids = fields.Many2many(
         'res.users',
-        string="Asset Admin", required=True, tracking=True
+        'asset_management_admin_rel',
+        'asset_id',
+        'user_id',
+        string="Asset Admins", required=True, tracking=True
     )
     subscription_type = fields.Selection([('basic', 'Basic'),('standard', 'Standard'),('premium', 'Premium')],)
 
@@ -207,8 +216,8 @@ class Asset(models.Model):
     @api.onchange('asset_type_id')
     def _onchange_asset_type_id(self):
         for rec in self:
-            if rec.asset_type_id and rec.asset_type_id.customer_id:
-                rec.asset_admin_id = rec.asset_type_id.customer_id
+            if rec.asset_type_id and rec.asset_type_id.customer_ids:
+                rec.asset_admin_ids = [(6, 0, rec.asset_type_id.customer_ids.ids)]
 
     # for service product quantity
     @api.depends('quantity_on_hand', 'end_date', 'asset_type_test', 'asset_item_ids.status')
@@ -886,7 +895,13 @@ class AssetType(models.Model):
     # Fields for defining asset types and their depreciation rules
     name = fields.Char(string='Name', required=True, tracking=True)
     stage = fields.Selection([('draft', 'Draft'), ('inventory', 'Inventory')], string="Stage", default='draft', tracking=True)
-    customer_id = fields.Many2one('res.users', string="Admin", default=lambda self: self.env.user, tracking=True)
+    customer_ids = fields.Many2many(
+        'res.users',
+        'asset_type_admin_rel',
+        'asset_type_id',
+        'user_id',
+        string="Admins", default=lambda self: self.env.user, tracking=True
+    )
     asset_type = fields.Selection([('storable', 'Storable'), ('service', 'Service')], string="Product Type", default='storable', required=True, tracking=True)
     image = fields.Image(string="Image")
     assign_type = fields.Selection([('individual', 'Individual'), ('department', 'Department')], string="Assign Type", default='individual', tracking=True)

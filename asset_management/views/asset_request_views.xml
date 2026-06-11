@@ -253,7 +253,7 @@
         <field name="model">asset.request</field>
         <field name="arch" type="xml">
             <search string="Approved Request Search">
-                <filter string="My Request" name="my_request" domain="[('asset_category_id.customer_id', '=', uid)]"/>
+                <filter string="My Request" name="my_request" domain="[('asset_category_id.customer_ids', 'in', [uid])]"/>
                 <field name="name"/>
                 <field name="employee_id"/>
                 <field name="department_id"/>

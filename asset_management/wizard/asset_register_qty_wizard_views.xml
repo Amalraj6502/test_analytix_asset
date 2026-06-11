@@ -10,7 +10,7 @@
                     <field name="quantity" string="Quantity to Mark as Registered"/>
                     <field name="location_id"/>
                     <field name="asset_model"/>
-                    <field name="asset_Admin_id"/>
+                    <field name="asset_admin_ids" widget="many2many_tags"/>
                 </group>
                 <footer>
                     <button name="action_confirm_registration" string="Confirm" type="object" class="btn-primary"/>
