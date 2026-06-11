@@ -26,7 +26,7 @@
                     ('create_uid', '=', user.id),
                     ('department_id.manager_id.user_id', '=', user.id),
                     '&amp;',
-                    ('asset_category_id.customer_id', '=', user.id),
+                    ('asset_category_id.customer_ids', 'in', [user.id]),
                     ('status', 'in', ['approved', 'received'])
                 ]
             </field>
@@ -58,7 +58,7 @@
                     '|',
                     ('create_uid', '=', user.id),
                     '&amp;',
-                    ('asset_category_id.customer_id', '=', user.id),
+                    ('asset_category_id.customer_ids', 'in', [user.id]),
                     ('status', 'in', ['approved', 'received'])
                 ]
             </field>

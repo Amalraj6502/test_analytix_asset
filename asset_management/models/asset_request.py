@@ -519,11 +519,11 @@ class AssetRequest(models.Model):
             is_admin = self.env.user.has_group('asset_management.assets_admin_group')
             rec.is_manager = is_admin or (rec.department_id and rec.department_id.manager_id.user_id == self.env.user)
 
-    @api.depends('asset_category_id.customer_id')
+    @api.depends('asset_category_id.customer_ids')
     def _compute_is_asset_request_admin(self):
         for rec in self:
             is_admin = self.env.user.has_group('asset_management.assets_admin_group')
-            rec.is_asset_request_admin = is_admin or (rec.asset_category_id and rec.asset_category_id.customer_id.id == self.env.user.id)
+            rec.is_asset_request_admin = is_admin or (rec.asset_category_id and self.env.user.id in rec.asset_category_id.customer_ids.ids)
 
     @api.depends('department_id')
     def _compute_is_department_head(self):

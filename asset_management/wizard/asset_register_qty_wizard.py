@@ -10,7 +10,7 @@ class AssetRegisterQtyWizard(models.TransientModel):
     quantity = fields.Float(string='Quantity to Register', required=True)
     location_id = fields.Many2one('asset.management.location', string='Location')
     asset_model = fields.Char(string='Asset Model')
-    asset_Admin_id = fields.Many2one('res.users', string='Asset Admin')
+    asset_admin_ids = fields.Many2many('res.users', string='Asset Admins')
 
     def action_confirm_registration(self):
         self.ensure_one()
@@ -31,7 +31,7 @@ class AssetRegisterQtyWizard(models.TransientModel):
                 'purchase_line_id': self.order_line_id.id,
                 'asset_location': self.location_id.id,
                 'asset_model': self.asset_model,
-                'asset_admin_id': self.asset_Admin_id.id,
+                'asset_admin_ids': [(6, 0, self.asset_admin_ids.ids)],
                 'vendor_new_id': self.order_line_id.order_id.partner_id.id,
                 'amount': self.order_line_id.price_unit,
                 'invoice_date': fields.Date.today(),

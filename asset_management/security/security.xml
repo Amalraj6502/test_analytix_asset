@@ -197,11 +197,11 @@
         </record>
 
         <!-- Asset Management Rules -->
-        <!-- Old User group: also restricted to own category assets -->
+        <!-- User group: can only see assets where they are an admin, or they created -->
         <record model="ir.rule" id="assets_user_rule">
             <field name="name">Assets Visibility for Users</field>
             <field name="model_id" ref="model_asset_management"/>
-            <field name="domain_force">['|', '|', '|', ('asset_admin_id', '=', user.id), ('asset_type_id.customer_id', '=', user.id), ('create_uid', '=', user.id), ('status', '=', 'assign')]</field>
+            <field name="domain_force">['|', ('asset_admin_ids', 'in', [user.id]), ('create_uid', '=', user.id)]</field>
             <field name="groups" eval="[(4, ref('assets_user_group'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -209,11 +209,11 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
-        <!-- Old Admin group: also restricted to own category assets (no longer sees everything) -->
+        <!-- Admin group: can only see assets where they are an admin, or they created -->
         <record model="ir.rule" id="assets_admin_rule">
             <field name="name">Assets Visibility for Admins</field>
             <field name="model_id" ref="model_asset_management"/>
-            <field name="domain_force">['|', '|', '|', ('asset_admin_id', '=', user.id), ('asset_type_id.customer_id', '=', user.id), ('create_uid', '=', user.id), ('status', '=', 'assign')]</field>
+            <field name="domain_force">['|', ('asset_admin_ids', 'in', [user.id]), ('create_uid', '=', user.id)]</field>
             <field name="groups" eval="[(4, ref('assets_admin_group'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -222,11 +222,11 @@
         </record>
 
         <!-- Rules for Custom Required Groups -->
-        <!-- Own Asset Admin: sees ONLY assets where their asset type admin is them -->
+        <!-- Own Asset Admin: sees ONLY assets where they are listed in asset_admin_ids -->
         <record model="ir.rule" id="assets_own_admin_rule_custom">
             <field name="name">Assets Visibility for Own Asset Admins (Custom)</field>
             <field name="model_id" ref="model_asset_management"/>
-            <field name="domain_force">['|', '|', '|', ('asset_admin_id', '=', user.id), ('asset_type_id.customer_id', '=', user.id), ('create_uid', '=', user.id), ('status', '=', 'assign')]</field>
+            <field name="domain_force">['|', ('asset_admin_ids', 'in', [user.id]), ('create_uid', '=', user.id)]</field>
             <field name="groups" eval="[(4, ref('assets_own_admin_group'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -246,19 +246,22 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
-        <!-- All internal users can READ assigned assets from ANY company
-             This is needed so repair_asset_id / return_asset_id dropdowns
-             in asset.request show cross-company assigned assets -->
+        <!-- NOTE: repair_asset_id / return_asset_id dropdowns work via
+             sudo() in asset.management.name_search(), so no extra
+             read-all rule is needed here.
+             Deactivate the old rule so it no longer applies. -->
         <record model="ir.rule" id="assets_assigned_read_all_companies_rule">
-            <field name="name">Assets: Read Assigned Assets Across All Companies</field>
+            <field name="name">Assets: Read Assigned (DISABLED)</field>
             <field name="model_id" ref="model_asset_management"/>
-            <field name="domain_force">[('status', '=', 'assign')]</field>
+            <field name="domain_force">[(0, '=', 1)]</field>
+            <field name="active" eval="False"/>
             <field name="groups" eval="[(4, ref('base.group_user'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
         </record>
+
 
         <!-- Asset Maintenance Rules -->
         <record model="ir.rule" id="assets_maintenance_user_rule">
@@ -311,7 +314,7 @@
         <record model="ir.rule" id="assets_types_user_rule">
             <field name="name">Assets Types Visibility for Users</field>
             <field name="model_id" ref="model_asset_type"/>
-            <field name="domain_force">['|', ('create_uid', '=', user.id), ('customer_id', '=', user.id)]</field>
+            <field name="domain_force">['|', ('create_uid', '=', user.id), ('customer_ids', 'in', [user.id])]</field>
             <field name="groups" eval="[(4, ref('assets_user_group'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -322,7 +325,7 @@
         <record model="ir.rule" id="assets_types_own_admin_rule">
             <field name="name">Assets Types Visibility for Own Asset Admins</field>
             <field name="model_id" ref="model_asset_type"/>
-            <field name="domain_force">['|', ('create_uid', '=', user.id), ('customer_id', '=', user.id)]</field>
+            <field name="domain_force">['|', ('create_uid', '=', user.id), ('customer_ids', 'in', [user.id])]</field>
             <field name="groups" eval="[(4, ref('assets_own_admin_group'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -333,7 +336,7 @@
         <record model="ir.rule" id="assets_types_admin_rule">
             <field name="name">Assets Types Visibility for Administrators</field>
             <field name="model_id" ref="model_asset_type"/>
-            <field name="domain_force">['|', ('create_uid', '=', user.id), ('customer_id', '=', user.id)]</field>
+            <field name="domain_force">['|', ('create_uid', '=', user.id), ('customer_ids', 'in', [user.id])]</field>
             <field name="groups" eval="[(4, ref('assets_admin_group'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
